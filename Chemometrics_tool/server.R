@@ -19,7 +19,8 @@ list.of.packages <- c("ggplot2",
                       "psych",
                       "Hmisc",
                       "MASS",
-                      "tabplot")
+                      "tabplot",
+                      "tools")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -29,14 +30,32 @@ lapply(list.of.packages, require, character.only = TRUE)
 
 server <- function(input, output) {
   
-  # read in the CSV
+  # read in the .csv file
   the_data_fn <- reactive({
     inFile <- input$file1
     if (is.null(inFile)) return(NULL)
-    the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
-                           sep = input$sep, quote = input$quote, stringsAsFactors=FALSE)
+    fileExt <- file_ext(inFile$datapath)
+    if (as.character(fileExt) == as.character("csv")){
+      the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
+                             sep = input$sep, quote = input$quote, stringsAsFactors=FALSE)
+    } else if((as.character(fileExt) == as.character("xlsx"))){
+      the_data <-   read_xlsx(inFile$datapath, 
+                              sheet = input$sheetName, 
+                              col_names = (input$header == "Yes"), 
+                              range = cell_cols(paste(input$startColumn,":",input$endColumn, sep=""))
+                              )
+    }
     return(the_data)
   })
+  
+  # # read in the .Xlsx file
+  # the_data_fn <- reactive({
+  #   inFile <- input$file1
+  #   if (is.null(inFile)) return(NULL)
+  #   the_data <-   read.xlsx(inFile$datapath, header = (input$header == "Yes"),
+  #                          sep = input$sep, quote = input$quote, stringsAsFactors=FALSE,  range = cells_cols(input$StartColumn:input$EndColumn))
+  #   return(the_data)
+  # })
   
   
   # tableplot
@@ -71,7 +90,7 @@ server <- function(input, output) {
                        choices  = colnames,
                        selected = colnames[1:5])
   })
-
+  
   
   # Check boxes to choose columns
   output$choose_columns_pca <- renderUI({
