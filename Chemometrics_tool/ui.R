@@ -49,6 +49,7 @@ ui <- bootstrapPage(
                textInput('sheetName', 'Sheet name', value = "", width = NULL, placeholder = NULL),
                textInput('startColumn', 'Enter start column aplhabet', value = "", width = NULL, placeholder = NULL),
                textInput('endColumn', 'Enter end column aplhabet', value = "", width = NULL, placeholder = NULL),
+               textInput('rowColumn', 'Enter column aplhabet containing row names', value = "", width = NULL, placeholder = NULL),
                
                tags$hr(),
                

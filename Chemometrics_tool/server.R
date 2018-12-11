@@ -38,12 +38,23 @@ server <- function(input, output) {
     if (as.character(fileExt) == as.character("csv")){
       the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
                              sep = input$sep, quote = input$quote, stringsAsFactors=FALSE)
-    } else if((as.character(fileExt) == as.character("xlsx"))){
-      the_data <-   read_xlsx(inFile$datapath, 
+    } else if((as.character(fileExt) == as.character("xlsx")) || (as.character(fileExt) == as.character("xls")) ){
+      the_data <-   read_excel(inFile$datapath, 
                               sheet = input$sheetName, 
                               col_names = (input$header == "Yes"), 
                               range = cell_cols(paste(input$startColumn,":",input$endColumn, sep=""))
                               )
+      
+      row_names <-   read_excel(inFile$datapath, 
+                               sheet = input$sheetName, 
+                               col_names = (input$header == "Yes"), 
+                               range = cell_cols(paste(input$rowColumn,":",input$rowColumn, sep=""))
+                               )
+      
+      row_names <- as.data.frame(row_names)
+      the_data <- as.data.frame(the_data)
+      row.names(the_data) <- row_names[,1]
+      
     }
     return(the_data)
   })
