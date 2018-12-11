@@ -30,15 +30,19 @@ lapply(list.of.packages, require, character.only = TRUE)
 
 server <- function(input, output) {
   
-  # read in the .csv file
+  # read in the input file 
   the_data_fn <- reactive({
     inFile <- input$file1
     if (is.null(inFile)) return(NULL)
     fileExt <- file_ext(inFile$datapath)
+   
+     # csv file
     if (as.character(fileExt) == as.character("csv")){
       the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
                              sep = input$sep, quote = input$quote, stringsAsFactors=FALSE)
-    } else if((as.character(fileExt) == as.character("xlsx")) || (as.character(fileExt) == as.character("xls")) ){
+    } 
+    # excel file
+    else if((as.character(fileExt) == as.character("xlsx")) || (as.character(fileExt) == as.character("xls")) ){
       the_data <-   read_excel(inFile$datapath, 
                               sheet = input$sheetName, 
                               col_names = (input$header == "Yes"), 
@@ -58,16 +62,6 @@ server <- function(input, output) {
     }
     return(the_data)
   })
-  
-  # # read in the .Xlsx file
-  # the_data_fn <- reactive({
-  #   inFile <- input$file1
-  #   if (is.null(inFile)) return(NULL)
-  #   the_data <-   read.xlsx(inFile$datapath, header = (input$header == "Yes"),
-  #                          sep = input$sep, quote = input$quote, stringsAsFactors=FALSE,  range = cells_cols(input$StartColumn:input$EndColumn))
-  #   return(the_data)
-  # })
-  
   
   # tableplot
   output$tableplot <- renderPlot({
