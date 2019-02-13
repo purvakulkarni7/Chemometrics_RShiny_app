@@ -46,12 +46,12 @@ ui <- bootstrapPage(
                
                
                tags$hr(),
-               textInput('sheetName', 'Sheet name', value = "", width = NULL, placeholder = NULL),
-               textInput('startColumn', 'Enter start column aplhabet', value = "", width = NULL, placeholder = NULL),
-               textInput('endColumn', 'Enter end column aplhabet', value = "", width = NULL, placeholder = NULL),
-               textInput('rowColumn', 'Enter column aplhabet containing row names', value = "", width = NULL, placeholder = NULL),
-               
-               tags$hr(),
+               # textInput('sheetName', 'Sheet name', value = "", width = NULL, placeholder = NULL),
+               # textInput('startColumn', 'Enter start column aplhabet', value = "", width = NULL, placeholder = NULL),
+               # textInput('endColumn', 'Enter end column aplhabet', value = "", width = NULL, placeholder = NULL),
+               # textInput('rowColumn', 'Enter column aplhabet containing row names', value = "", width = NULL, placeholder = NULL),
+               # 
+               # tags$hr(),
                
                fileInput('file1', 'Choose a .csv/xlsx file to upload (max. 30 MB):',
                          accept = c(
@@ -62,7 +62,7 @@ ui <- bootstrapPage(
                            '.csv',
                            '.tsv'
                          )),
-               p("After uploading your CSV file, click on the 'Inspect the data' tab")
+               p("After uploading your CSV file, click on the 'Summary' tab")
                
       ), # end file  tab
       

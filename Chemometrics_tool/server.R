@@ -35,29 +35,56 @@ server <- function(input, output) {
     inFile <- input$file1
     if (is.null(inFile)) return(NULL)
     fileExt <- file_ext(inFile$datapath)
-   
-     # csv file
+    
+    # csv file
     if (as.character(fileExt) == as.character("csv")){
       the_data <-   read.csv(inFile$datapath, header = (input$header == "Yes"),
                              sep = input$sep, quote = input$quote, stringsAsFactors=FALSE)
     } 
     # excel file
     else if((as.character(fileExt) == as.character("xlsx")) || (as.character(fileExt) == as.character("xls")) ){
+      # the_data <-   read_excel(inFile$datapath, 
+      #                         sheet = input$sheetName, 
+      #                         col_names = (input$header == "Yes"), 
+      #                         range = cell_cols(paste(input$startColumn,":",input$endColumn, sep=""))
+      #                         )
+      
       the_data <-   read_excel(inFile$datapath, 
-                              sheet = input$sheetName, 
-                              col_names = (input$header == "Yes"), 
-                              range = cell_cols(paste(input$startColumn,":",input$endColumn, sep=""))
-                              )
-      
-      row_names <-   read_excel(inFile$datapath, 
-                               sheet = input$sheetName, 
                                col_names = (input$header == "Yes"), 
-                               range = cell_cols(paste(input$rowColumn,":",input$rowColumn, sep=""))
-                               )
+                               range = cell_cols(paste(input$startColumn,":",input$endColumn, sep=""))
+      )
       
-      row_names <- as.data.frame(row_names)
+      # row_names <-   read_excel(inFile$datapath, 
+      #                          sheet = input$sheetName, 
+      #                          col_names = (input$header == "Yes"), 
+      #                          range = cell_cols(paste(input$rowColumn,":",input$rowColumn, sep=""))
+      #                          )
+      
+      # row_names <- as.data.frame(row_names)
       the_data <- as.data.frame(the_data)
-      row.names(the_data) <- row_names[,1]
+      #  row.names(the_data) <- row_names[,1]
+      
+    }
+    # tsv file
+    else if(as.character(fileExt) == as.character("tsv")){
+      # the_data <-   read_excel(inFile$datapath, 
+      #                         sheet = input$sheetName, 
+      #                         col_names = (input$header == "Yes"), 
+      #                         range = cell_cols(paste(input$startColumn,":",input$endColumn, sep=""))
+      #                         )
+      
+      the_data <-   read.table(inFile$datapath, 
+                               header = TRUE)
+      
+      # row_names <-   read_excel(inFile$datapath, 
+      #                          sheet = input$sheetName, 
+      #                          col_names = (input$header == "Yes"), 
+      #                          range = cell_cols(paste(input$rowColumn,":",input$rowColumn, sep=""))
+      #                          )
+      
+      # row_names <- as.data.frame(row_names)
+      the_data <- as.data.frame(the_data)
+      #  row.names(the_data) <- row_names[,1]
       
     }
     return(the_data)
@@ -135,7 +162,6 @@ server <- function(input, output) {
     
   })
   
-  
   pca_objects <- reactive({
     # Keep the selected columns
     columns <-    input$columns
@@ -175,8 +201,6 @@ server <- function(input, output) {
                 choices= colnames(pca_output), 
                 selected = 'PC2')
   })
-  
-  
   
   output$plot2 <- renderPlot({
     pca_output <- pca_objects()$pca_output
