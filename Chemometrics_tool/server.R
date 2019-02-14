@@ -86,6 +86,11 @@ server <- function(input, output) {
       the_data <- as.data.frame(the_data)
       #  row.names(the_data) <- row_names[,1]
       
+      if(input$transpose == "TRUE")
+      {
+        the_data <- as.data.frame(t(the_data))
+      }
+      
     }
     return(the_data)
   })

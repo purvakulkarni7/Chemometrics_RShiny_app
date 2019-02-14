@@ -14,7 +14,7 @@ ui <- bootstrapPage(
     titlePanel("Chemometrics tool"),
     
     tabsetPanel(
-      
+       
       tabPanel("Data input", 
                tags$h2("Upload data file"),
                tags$hr(),
@@ -43,6 +43,8 @@ ui <- bootstrapPage(
                               'Double Quote'='"',
                               'Single Quote'="'"),
                             '"'),
+               
+               checkboxInput(inputId = 'transpose', label = "Transpose", value = FALSE, width = NULL),
                
                
                tags$hr(),
@@ -139,6 +141,12 @@ ui <- bootstrapPage(
       
       tabPanel("PCA output",
                verbatimTextOutput("pca_details")
+               
+      ), # end  tab 
+      
+      
+      tabPanel("Bar plot",
+               verbatimTextOutput("bar_plot")
                
       ) # end  tab 
       
