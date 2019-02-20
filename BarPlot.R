@@ -63,7 +63,8 @@ BarPlot <- function()
       ) +
       scale_x_continuous(breaks = seq(1, nrow(data), 1)) + 
       scale_y_continuous(expand = c(0, 0)) + 
-      ggtitle(paste("Feature ID #",featureID)) +
+      ggtitle(paste("Feature ID #",featureID, ", m/z = ", data_table$Mass[featureID], ", RT = ", data_table$R[featureID], "min")) +
+      theme(plot.title = element_text(size = 10, face = "bold")) +
       scale_fill_manual(values = pal,limits = names(pal))
     
     print(p)
