@@ -25,7 +25,7 @@ BarPlot <- function()
   
   #Transpose
   data_table_t <- as.data.frame(t(data_table))
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
   SampleType <- row.names(data_table_t_sub)
   SampleType <- substr(SampleType, 1, 2)
   data_table_t_sub <- cbind(data_table_t_sub, SampleType)
@@ -40,10 +40,15 @@ BarPlot <- function()
   
   pal <- c(
     "Co" = "#000000",
-    "Pa" = "#9e9e9e", 
-    "QC" = "#0000ff", 
-    "Va" = "#008700" 
+    "Pa" = "#9e9e9e",
+    "QC" = "#0000ff",
+    "Va" = "#008700"
   )
+  
+  columnNames <- colnames(data_table)
+  columnNames <- columnNames[4:length(columnNames)]
+  rownames(data) = make.names(columnNames, unique=TRUE)
+ 
   
   repeat {
     featureID <- readline(prompt = "Enter feature ID: ")
@@ -53,6 +58,8 @@ BarPlot <- function()
     
     df <-
       data.frame(Sample = c(1:nrow(data)), Intensity = data[featureID][[1]])
+    rownames(df) <- rownames(data)
+   
     p <-
       ggplot(data = df, aes(x = Sample, y = Intensity, fill = SampleType)) +
       geom_bar(stat = "identity") + theme(
@@ -61,11 +68,23 @@ BarPlot <- function()
         panel.background = element_blank(),
         axis.line = element_line(colour = "black")
       ) +
-      scale_x_continuous(breaks = seq(1, nrow(data), 1)) + 
-      scale_y_continuous(expand = c(0, 0)) + 
-      ggtitle(paste("Feature ID #",featureID, ", m/z = ", data_table$Mass[featureID], ", RT = ", data_table$R[featureID], "min")) +
+      theme(axis.ticks.x = element_blank()) +
+      scale_x_continuous(breaks = seq(1, nrow(data)), labels = c(rownames(df))) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.x.bottom = element_text(vjust = 0.5)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      ggtitle(
+        paste(
+          "Feature ID #",
+          featureID,
+          ", m/z = ",
+          data_table$Mass[featureID],
+          ", RT = ",
+          data_table$R[featureID],
+          "min"
+        )
+      ) +
       theme(plot.title = element_text(size = 10, face = "bold")) +
-      scale_fill_manual(values = pal,limits = names(pal))
+      scale_fill_manual(values = pal, limits = names(pal))
     
     print(p)
     
@@ -77,3 +96,6 @@ BarPlot <- function()
     }
   }
 }
+
+
+
