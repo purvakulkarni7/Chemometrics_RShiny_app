@@ -10,7 +10,12 @@ library(devtools)
 install_github("vqv/ggbiplot", force = TRUE)
 
 library(ggbiplot)
+library(RColorBrewer)
+library(ggplot2)
 
+# https://www.stat.ubc.ca/~jenny/STAT545A/block17_colorsGgplot2Qualitative.html
+# https://stackoverflow.com/questions/6919025/how-to-assign-colors-to-categorical-variables-in-ggplot2-that-have-stable-mappin\
+# https://stackoverflow.com/questions/36609476/ggplot2-draw-individual-ellipses-but-color-by-group
 
 BarPlot <- function()
 {
@@ -33,12 +38,19 @@ BarPlot <- function()
   data <- data[, apply(data, 2, var) != 0]
   SampleType <- data_table_t_sub[, ncol(data_table_t_sub)]
   
+  pal <- c(
+    "Co" = "#000000",
+    "Pa" = "#9e9e9e", 
+    "QC" = "#0000ff", 
+    "Va" = "#008700" 
+  )
+  
   repeat {
     featureID <- readline(prompt = "Enter feature ID: ")
     featureID <- as.numeric(featureID)
     
     # http://www.sthda.com/english/wiki/ggplot2-barplots-quick-start-guide-r-software-and-data-visualization
-    library(ggplot2)
+    
     df <-
       data.frame(Sample = c(1:nrow(data)), Intensity = data[featureID][[1]])
     p <-
@@ -48,8 +60,13 @@ BarPlot <- function()
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black")
-      )
-    print(p + scale_x_continuous(breaks = seq(1, nrow(data), 1)) + scale_y_continuous(expand = c(0, 0)) + ggtitle(paste("Bar plot feature ID #",featureID)))
+      ) +
+      scale_x_continuous(breaks = seq(1, nrow(data), 1)) + 
+      scale_y_continuous(expand = c(0, 0)) + 
+      ggtitle(paste("Feature ID #",featureID)) +
+      scale_fill_manual(values = pal,limits = names(pal))
+    
+    print(p)
     
     if (Continue <-
         readline(prompt = "Do you want to continue, type y or n: ") == "n")
