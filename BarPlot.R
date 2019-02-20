@@ -12,6 +12,7 @@ install_github("vqv/ggbiplot", force = TRUE)
 library(ggbiplot)
 library(RColorBrewer)
 library(ggplot2)
+library(stringr)
 
 # https://www.stat.ubc.ca/~jenny/STAT545A/block17_colorsGgplot2Qualitative.html
 # https://stackoverflow.com/questions/6919025/how-to-assign-colors-to-categorical-variables-in-ggplot2-that-have-stable-mappin\
@@ -19,15 +20,18 @@ library(ggplot2)
 
 BarPlot <- function()
 {
-  # Enter the file path (for example: Sample_data/170328_ControlsvsPatients_2018-10-08_ESIpos_HEADERREMOVED.tsv)
+  # Enter the file path (for example: Sample_data/170328_ControlsvsPatients_2018-10-08_ESIpos_HEADERREMOVED.tsv, Sample_data/190125_ControlsvsPatients_2019-02-05_ESIpos_HEADERREMOVED.tsv)
   filePath <- readline(prompt = "Enter file path: ")
   data_table <- read.table(filePath, header = TRUE)
   
   #Transpose
   data_table_t <- as.data.frame(t(data_table))
+  FeatureIdColumn <- data_table[1]
+  MassColumn <- data_table[2]
+  RTColumn <- data_table[3]
   data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
   SampleType <- row.names(data_table_t_sub)
-  SampleType <- substr(SampleType, 1, 2)
+  SampleType <- word(SampleType,sep = "_")
   data_table_t_sub <- cbind(data_table_t_sub, SampleType)
   
   #log.data <- log(data_table_sub_t_sub_ST[,1:10000])
@@ -39,15 +43,16 @@ BarPlot <- function()
   SampleType <- data_table_t_sub[, ncol(data_table_t_sub)]
   
   pal <- c(
-    "Co" = "#000000",
-    "Pa" = "#9e9e9e",
+    "Controle" = "#000000",
+    "Patient" = "#9e9e9e",
     "QC" = "#0000ff",
-    "Va" = "#008700"
+    "Validation" = "#008700"
   )
   
   columnNames <- colnames(data_table)
   columnNames <- columnNames[4:length(columnNames)]
   rownames(data) = make.names(columnNames, unique=TRUE)
+  colnames(data) = FeatureIdColumn$F
  
   
   repeat {
@@ -56,8 +61,10 @@ BarPlot <- function()
     
     # http://www.sthda.com/english/wiki/ggplot2-barplots-quick-start-guide-r-software-and-data-visualization
     
+    temp = data[as.character(featureID)]
+    
     df <-
-      data.frame(Sample = c(1:nrow(data)), Intensity = data[featureID][[1]])
+      data.frame(Sample = c(1:nrow(data)), Intensity = c(temp[,1]))
     rownames(df) <- rownames(data)
    
     p <-
@@ -77,9 +84,9 @@ BarPlot <- function()
           "Feature ID #",
           featureID,
           ", m/z = ",
-          data_table$Mass[featureID],
+          MassColumn$Mass[which(colnames(data) == featureID)],
           ", RT = ",
-          data_table$R[featureID],
+          RTColumn$R[which(colnames(data) == featureID)],
           "min"
         )
       ) +
@@ -98,4 +105,5 @@ BarPlot <- function()
 }
 
 
-
+# temp <- str_split(rownames(df), "_")
+# paste(temp[[1]][1], temp[[1]][length(temp[[1]])], sep="_")
