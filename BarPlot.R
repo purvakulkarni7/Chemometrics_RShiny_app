@@ -22,7 +22,11 @@ BarPlot <- function()
 {
   # Enter the file path (for example: Sample_data/170328_ControlsvsPatients_2018-10-08_ESIpos_HEADERREMOVED.tsv, Sample_data/190125_ControlsvsPatients_2019-02-05_ESIpos_HEADERREMOVED.tsv)
   filePath <- readline(prompt = "Enter file path: ")
-  data_table <- read.table(filePath, header = TRUE)
+  data_table <-
+    read.table(filePath,
+               header = TRUE,
+               skip = 2,
+               fill = TRUE)
   
   #Transpose
   data_table_t <- as.data.frame(t(data_table))
@@ -31,7 +35,7 @@ BarPlot <- function()
   RTColumn <- data_table[3]
   data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
   SampleType <- row.names(data_table_t_sub)
-  SampleType <- word(SampleType,sep = "_")
+  SampleType <- word(SampleType, sep = "_")
   data_table_t_sub <- cbind(data_table_t_sub, SampleType)
   
   #log.data <- log(data_table_sub_t_sub_ST[,1:10000])
@@ -51,9 +55,9 @@ BarPlot <- function()
   
   columnNames <- colnames(data_table)
   columnNames <- columnNames[4:length(columnNames)]
-  rownames(data) = make.names(columnNames, unique=TRUE)
+  rownames(data) = make.names(columnNames, unique = TRUE)
   colnames(data) = FeatureIdColumn$F
- 
+  
   
   repeat {
     featureID <- readline(prompt = "Enter feature ID: ")
@@ -64,9 +68,9 @@ BarPlot <- function()
     temp = data[as.character(featureID)]
     
     df <-
-      data.frame(Sample = c(1:nrow(data)), Intensity = c(temp[,1]))
+      data.frame(Sample = c(1:nrow(data)), Intensity = c(temp[, 1]))
     rownames(df) <- rownames(data)
-   
+    
     p <-
       ggplot(data = df, aes(x = Sample, y = Intensity, fill = SampleType)) +
       geom_bar(stat = "identity") + theme(
@@ -76,8 +80,12 @@ BarPlot <- function()
         axis.line = element_line(colour = "black")
       ) +
       theme(axis.ticks.x = element_blank()) +
-      scale_x_continuous(breaks = seq(1, nrow(data)), labels = c(rownames(df))) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.x.bottom = element_text(vjust = 0.5)) +
+      scale_x_continuous(breaks = seq(1, nrow(data)),
+                         labels = c(rownames(df))) +
+      theme(
+        axis.text.x = element_text(angle = 90, hjust = 1),
+        axis.text.x.bottom = element_text(vjust = 0.5)
+      ) +
       scale_y_continuous(expand = c(0, 0)) +
       ggtitle(
         paste(
