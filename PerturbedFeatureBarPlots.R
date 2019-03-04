@@ -1,25 +1,10 @@
+source("makeDir.R")
+
 PerturbedFeatureBarPlots <- function()
 {
   # Enter the file path (for example: Sample_data/190125_Patient_plasma_BB18-01585_2019-02-05_ESIpos.tsv)
   patientFilePath <-
     readline(prompt = "Enter interested patient file path: ")
-  patientFile <-
-    read.table(
-      patientFilePath,
-      header = TRUE,
-      sep = "\t",
-      fill = TRUE,
-      quote = "",
-      stringsAsFactors = FALSE
-    )
-  patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
-                                 1), ]
-  
-  patientFileName <- basename(patientFilePath)
-  temp <- str_split(patientFileName, "[_,-]+")
-  patientID <-
-    paste(temp[[1]][2], temp[[1]][3], temp[[1]][4], sep = "_")
-  patientID <- paste(patientID, temp[[1]][5], sep = ".")
   
   # Enter the file path (for example: Sample_data/190125_ControlsvsPatients_2019-02-05_ESIpos.tsv)
   CoVsPaFilePath <-
@@ -43,10 +28,27 @@ PerturbedFeatureBarPlots <- function()
   BFH_Pval <-
     as.numeric(readline(prompt = "Enter value to filter Bonferroni Holm P values: "))
   
+  patientFile <-
+    read.table(
+      patientFilePath,
+      header = TRUE,
+      sep = "\t",
+      fill = TRUE,
+      quote = "",
+      stringsAsFactors = FALSE
+    )
+  patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
+                                 1), ]
+  
+  patientFileName <- basename(patientFilePath)
+  temp <- str_split(patientFileName, "[_,-]+")
+  patientID <-
+    paste(temp[[1]][2], temp[[1]][3], temp[[1]][4], sep = "_")
+  patientID <- paste(patientID, temp[[1]][5], sep = ".")
+  
   y = 1
   
   perturbedFeatureID = list()
-  
   
   for (i in 1:nrow(patientFile))
   {
@@ -62,6 +64,10 @@ PerturbedFeatureBarPlots <- function()
       y = y + 1
     }
   }
+  
+  perturbedFeatureID
+  
+  length(perturbedFeatureID)
   
   data_table_t <- as.data.frame(t(data_table))
   FeatureIdColumn <- data_table[1]
@@ -110,7 +116,8 @@ PerturbedFeatureBarPlots <- function()
   rownames(data) = make.names(columnNames, unique = TRUE)
   colnames(data) = FeatureIdColumn$F
   
-  dir.create(paste(patientID, "OutputBarPlots", sep = "_"))
+  newDir = paste(patientID, "OutputBarPlots", sep = "_")
+  makeDir(newDir)
   outputPath = paste(".", "/", paste(patientID, "OutputBarPlots", sep = "_"), sep = "")
   
   
