@@ -1,4 +1,8 @@
 source("makeDir.R")
+library(ggplot2)
+library(gridExtra)
+library(RColorBrewer)
+library(stringr)
 
 PerturbedFeatureBarPlots <- function()
 {
@@ -38,7 +42,7 @@ PerturbedFeatureBarPlots <- function()
       stringsAsFactors = FALSE
     )
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
-                                 1), ]
+                                 1),]
   
   patientFileName <- basename(patientFilePath)
   temp <- str_split(patientFileName, "[_,-]+")
@@ -65,15 +69,14 @@ PerturbedFeatureBarPlots <- function()
     }
   }
   
-  perturbedFeatureID
-  
-  length(perturbedFeatureID)
+  # Remove duplicates in the perturbed feature ID list
+  perturbedFeatureID <- unique(perturbedFeatureID)
   
   data_table_t <- as.data.frame(t(data_table))
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
   
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
   
@@ -118,8 +121,9 @@ PerturbedFeatureBarPlots <- function()
   
   newDir = paste(patientID, "OutputBarPlots", sep = "_")
   makeDir(newDir)
-  outputPath = paste(".", "/", paste(patientID, "OutputBarPlots", sep = "_"), sep = "")
+  outputPath = paste(".", "/", newDir, sep = "")
   
+  plotList = list()
   
   for (x in 1:length(perturbedFeatureID))
   {
@@ -132,8 +136,9 @@ PerturbedFeatureBarPlots <- function()
     df <-
       data.frame(Sample = c(1:nrow(data)), Intensity = c(temp[, 1]))
     rownames(df) <- rownames(data)
+    plotName <- paste("Plot", featureID, sep = "_")
     
-    p <-
+    plotName <-
       ggplot(data = df, aes(x = Sample, y = Intensity, fill = SampleType)) +
       geom_bar(stat = "identity") + theme(
         panel.grid.major = element_blank(),
@@ -142,12 +147,12 @@ PerturbedFeatureBarPlots <- function()
         axis.line = element_line(colour = "black")
       ) +
       theme(axis.ticks.x = element_blank()) +
-      scale_x_continuous(breaks = seq(1, nrow(data)),
-                         labels = c(rownames(df))) +
-      theme(
-        axis.text.x = element_text(angle = 90, hjust = 1),
-        axis.text.x.bottom = element_text(vjust = 0.5)
-      ) +
+      # scale_x_continuous(breaks = seq(1, nrow(data)),
+      #                    labels = c(rownames(df))) +
+      # theme(
+      #   axis.text.x = element_text(angle = 90, hjust = 1),
+      #   axis.text.x.bottom = element_text(vjust = 0.5)
+      # ) +
       scale_y_continuous(expand = c(0, 0)) +
       ggtitle(
         paste(
@@ -168,9 +173,13 @@ PerturbedFeatureBarPlots <- function()
         legend.title = element_text(size = 7, face = "bold")
       )
     
-    plotName <- paste(featureID, patientID, ".png", sep = "_")
+    plotList[x] = plotName
+    
+    
+    
+    plotFileName <- paste(featureID, patientID, ".png", sep = "_")
     ggsave(
-      plotName,
+      plotFileName,
       device = "png",
       scale = 1,
       dpi = 300,
@@ -179,4 +188,13 @@ PerturbedFeatureBarPlots <- function()
       path = outputPath
     )
   }
+  
+  # n <- length(plotList)
+  # nCol <- floor(sqrt(n))
+  #do.call("grid.arrange", c(plotList, ncol=nCol))
+  
+  # temp <- n2mfrow(length(plotList))
+  # #grid.arrange(plotList, nrow = temp[1], ncol= temp[2])
+  # par(mfrow = c(temp[1], temp[2]))
+  # apply(plotList)
 }
