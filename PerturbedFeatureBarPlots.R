@@ -17,8 +17,9 @@ PerturbedFeatureBarPlots <- function()
   
   patientFileName <- basename(patientFilePath)
   temp <- str_split(patientFileName, "[_,-]+")
-  patientID <- paste(temp[[1]][2],temp[[1]][3],temp[[1]][4], sep = "_")
-  patientID <- paste(patientID,temp[[1]][5], sep = ".")
+  patientID <-
+    paste(temp[[1]][2], temp[[1]][3], temp[[1]][4], sep = "_")
+  patientID <- paste(patientID, temp[[1]][5], sep = ".")
   
   # Enter the file path (for example: Sample_data/190125_ControlsvsPatients_2019-02-05_ESIpos.tsv)
   CoVsPaFilePath <-
@@ -29,8 +30,8 @@ PerturbedFeatureBarPlots <- function()
                skip = 2,
                fill = TRUE)
   
-  # Fea(ture filter options
-  print("Enter the different filter options below: \n")
+  # Feature filter options
+  print("Enter the different filter options below:")
   mp <-
     readline(prompt = "Filter based on metabolic panel (YES or NO): ")
   mass_delta <-
@@ -42,8 +43,10 @@ PerturbedFeatureBarPlots <- function()
   BFH_Pval <-
     as.numeric(readline(prompt = "Enter value to filter Bonferroni Holm P values: "))
   
-  y = 1;
-  perturbedFeatureID = list();
+  y = 1
+  
+  perturbedFeatureID = list()
+  
   
   for (i in 1:nrow(patientFile))
   {
@@ -52,10 +55,10 @@ PerturbedFeatureBarPlots <- function()
         (
           patientFile$RT_Delta_...[i] >= RT_delta_min &
           patientFile$RT_Delta_...[i] <= RT_delta_max
-        ) && (patientFile$Bonferroni.Holm_P.Value_Final[i] <= BFH_Pval))
+        ) &&
+        (patientFile$Bonferroni.Holm_P.Value_Final[i] <= BFH_Pval))
     {
       perturbedFeatureID[[y]] = as.numeric(patientFile$Feature_ID[i])
-      print(perturbedFeatureID[[y]])
       y = y + 1
     }
   }
@@ -70,19 +73,19 @@ PerturbedFeatureBarPlots <- function()
   
   SampleType <- row.names(data_table_t_sub)
   
-  for(i in 1:length(SampleType))
+  for (i in 1:length(SampleType))
   {
-    if(i == patientIDColumnNumber)
+    if (i == patientIDColumnNumber)
       SampleType[i] <- SampleType[i]
-    else if(i == patientIDColumnNumber+1)
-      SampleType[i] <- SampleType[i-1]
+    else if (i == patientIDColumnNumber + 1)
+      SampleType[i] <- SampleType[i - 1]
     else
       SampleType[i] <- word(SampleType[i], sep = "_")
   }
   
   data_table_t_sub <- cbind(data_table_t_sub, SampleType)
   
-  #log.data <- log(data_table_sub_t_sub_ST[,1:10000]) 
+  #log.data <- log(data_table_sub_t_sub_ST[,1:10000])
   data <- data_table_t_sub[, (1:(ncol(data_table_t_sub) - 1))]
   
   # The following step is to resolve the error
@@ -98,16 +101,20 @@ PerturbedFeatureBarPlots <- function()
   #   "Validation" = "#008700"
   # )
   
-  pal <- setNames(c("#000000", "#9e9e9e", "#FF0000", "#0000ff", "#008700"), levels(SampleType))
+  pal <-
+    setNames(c("#000000", "#9e9e9e", "#FF0000", "#0000ff", "#008700"),
+             levels(SampleType))
   
   columnNames <- colnames(data_table)
   columnNames <- columnNames[4:length(columnNames)]
   rownames(data) = make.names(columnNames, unique = TRUE)
   colnames(data) = FeatureIdColumn$F
   
+  dir.create(paste(patientID, "OutputBarPlots", sep = "_"))
+  outputPath = paste(".", "/", paste(patientID, "OutputBarPlots", sep = "_"), sep = "")
   
   
-  for(x in 1:length(perturbedFeatureID))
+  for (x in 1:length(perturbedFeatureID))
   {
     featureID <- as.numeric(perturbedFeatureID[[x]])
     
@@ -119,7 +126,7 @@ PerturbedFeatureBarPlots <- function()
       data.frame(Sample = c(1:nrow(data)), Intensity = c(temp[, 1]))
     rownames(df) <- rownames(data)
     
-    p <- 
+    p <-
       ggplot(data = df, aes(x = Sample, y = Intensity, fill = SampleType)) +
       geom_bar(stat = "identity") + theme(
         panel.grid.major = element_blank(),
@@ -135,7 +142,7 @@ PerturbedFeatureBarPlots <- function()
         axis.text.x.bottom = element_text(vjust = 0.5)
       ) +
       scale_y_continuous(expand = c(0, 0)) +
-      ggtitle( 
+      ggtitle(
         paste(
           "Feature ID #",
           featureID,
@@ -147,9 +154,22 @@ PerturbedFeatureBarPlots <- function()
         )
       ) +
       theme(plot.title = element_text(size = 10, face = "bold")) +
-      scale_fill_manual(values = pal, limits = names(pal))
+      scale_fill_manual(values = pal, limits = names(pal)) +
+      theme(
+        legend.position = "bottom",
+        legend.text = element_text(size = 7),
+        legend.title = element_text(size = 7, face = "bold")
+      )
     
-    print(p)
+    plotName <- paste(featureID, patientID, ".png", sep = "_")
+    ggsave(
+      plotName,
+      device = "png",
+      scale = 1,
+      dpi = 300,
+      width = 10,
+      height = 7,
+      path = outputPath
+    )
   }
-  
 }
