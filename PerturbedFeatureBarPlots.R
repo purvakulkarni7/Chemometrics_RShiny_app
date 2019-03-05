@@ -3,6 +3,7 @@ library(ggplot2)
 library(gridExtra)
 library(RColorBrewer)
 library(stringr)
+library(tidyverse)
 
 PerturbedFeatureBarPlots <- function()
 {
@@ -138,7 +139,7 @@ PerturbedFeatureBarPlots <- function()
     rownames(df) <- rownames(data)
     plotName <- paste("Plot", featureID, sep = "_")
     
-    plotName <-
+    p <-
       ggplot(data = df, aes(x = Sample, y = Intensity, fill = SampleType)) +
       geom_bar(stat = "identity") + theme(
         panel.grid.major = element_blank(),
@@ -153,48 +154,77 @@ PerturbedFeatureBarPlots <- function()
       #   axis.text.x = element_text(angle = 90, hjust = 1),
       #   axis.text.x.bottom = element_text(vjust = 0.5)
       # ) +
+       theme(aspect.ratio = 0.5/1) +
       scale_y_continuous(expand = c(0, 0)) +
       ggtitle(
         paste(
           "Feature ID #",
           featureID,
           ", m/z = ",
-          MassColumn$Mass[which(colnames(data) == featureID)],
-          ", RT = ",
+          MassColumn$Mass[which(colnames(data) == featureID)], "\n",
+          "RT = ",
           RTColumn$R[which(colnames(data) == featureID)],
           "min"
         )
       ) +
-      theme(plot.title = element_text(size = 10, face = "bold")) +
-      scale_fill_manual(values = pal, limits = names(pal)) +
-      theme(
-        legend.position = "bottom",
-        legend.text = element_text(size = 7),
-        legend.title = element_text(size = 7, face = "bold")
-      )
+      theme(plot.title = element_text(size = 8, face = "bold")) +
+      scale_fill_manual(values = pal, limits = names(pal)) + 
+      # theme(
+      #   legend.position = "bottom",
+      #   legend.text = element_text(size = 7),
+      #   legend.title = element_text(size = 7, face = "bold")
+      # )
+      theme(legend.position="none")
     
-    plotList[x] = plotName
+    plotList[[x]] = p
     
-    
-    
-    plotFileName <- paste(featureID, patientID, ".png", sep = "_")
-    ggsave(
-      plotFileName,
-      device = "png",
-      scale = 1,
-      dpi = 300,
-      width = 10,
-      height = 7,
-      path = outputPath
-    )
+    # plotFileName <- paste(featureID, patientID, ".png", sep = "_")
+    # ggsave(
+    #   plotFileName,
+    #   device = "png",
+    #   scale = 1,
+    #   dpi = 300,
+    #   width = 10,
+    #   height = 7,
+    #   path = outputPath
+    # )
   }
+  
+
   
   # n <- length(plotList)
   # nCol <- floor(sqrt(n))
   #do.call("grid.arrange", c(plotList, ncol=nCol))
-  
-  # temp <- n2mfrow(length(plotList))
-  # #grid.arrange(plotList, nrow = temp[1], ncol= temp[2])
+  if(length(plotList) > 12)
+  {
+    plotNumber <- length(plotList)
+    FullPlotSheetNumber = plotNumber%/%12
+    
+    RemainderPlotSheet = plotNumber%%12
+    
+    for(i in 1:FullPlotSheetNumber)
+    {
+      temp <- n2mfrow(12)
+      val <- grid.arrange(grobs = plotList[((12 *(i-1)) +1) :(i*12)],  ncol= temp[2])
+      ggsave(paste("Combined_bar_plots",i,".png", sep = ""),val)
+      print(paste("Loop traversed", i))
+    }
+    
+    if(RemainderPlotSheet > 0)
+    {
+      temp <- n2mfrow(RemainderPlotSheet)
+      val <- grid.arrange(grobs = plotList[((FullPlotSheetNumber*12)+1):length(plotNumber)],  ncol= temp[2])
+      ggsave("Combined_bar_plots_last.png",val)
+    }
+    
+  }
+  else
+  {
+   temp <- n2mfrow(length(plotList))
+   val <- grid.arrange(grobs = plotList,  ncol= temp[2])
+   ggsave("Combined_bar_plots.png",val)
+  }
+ # grid.arrange(plotList, nrow = temp[1], ncol= temp[2])
   # par(mfrow = c(temp[1], temp[2]))
   # apply(plotList)
 }
