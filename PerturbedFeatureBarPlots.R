@@ -43,7 +43,7 @@ PerturbedFeatureBarPlots <- function()
       stringsAsFactors = FALSE
     )
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
-                                 1),]
+                                 1), ]
   
   patientFileName <- basename(patientFilePath)
   temp <- str_split(patientFileName, "[_,-]+")
@@ -77,7 +77,7 @@ PerturbedFeatureBarPlots <- function()
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
   
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
   
@@ -154,27 +154,28 @@ PerturbedFeatureBarPlots <- function()
       #   axis.text.x = element_text(angle = 90, hjust = 1),
       #   axis.text.x.bottom = element_text(vjust = 0.5)
       # ) +
-       theme(aspect.ratio = 0.5/1) +
+      theme(aspect.ratio = 0.5 / 1) +
       scale_y_continuous(expand = c(0, 0)) +
       ggtitle(
         paste(
           "Feature ID #",
           featureID,
           ", m/z = ",
-          MassColumn$Mass[which(colnames(data) == featureID)], "\n",
+          MassColumn$Mass[which(colnames(data) == featureID)],
+          "\n",
           "RT = ",
           RTColumn$R[which(colnames(data) == featureID)],
           "min"
         )
       ) +
       theme(plot.title = element_text(size = 8, face = "bold")) +
-      scale_fill_manual(values = pal, limits = names(pal)) + 
+      scale_fill_manual(values = pal, limits = names(pal)) +
       # theme(
       #   legend.position = "bottom",
       #   legend.text = element_text(size = 7),
       #   legend.title = element_text(size = 7, face = "bold")
       # )
-      theme(legend.position="none")
+      theme(legend.position = "none")
     
     plotList[[x]] = p
     
@@ -189,42 +190,38 @@ PerturbedFeatureBarPlots <- function()
     #   path = outputPath
     # )
   }
-  
 
-  
   # n <- length(plotList)
   # nCol <- floor(sqrt(n))
   #do.call("grid.arrange", c(plotList, ncol=nCol))
-  if(length(plotList) > 12)
+  if (length(plotList) > 12)
   {
     plotNumber <- length(plotList)
-    FullPlotSheetNumber = plotNumber%/%12
+    FullPlotSheetNumber = plotNumber %/% 12
     
-    RemainderPlotSheet = plotNumber%%12
+    RemainderPlotSheet = plotNumber %% 12
     
-    for(i in 1:FullPlotSheetNumber)
+    for (i in 1:FullPlotSheetNumber)
     {
       temp <- n2mfrow(12)
-      val <- grid.arrange(grobs = plotList[((12 *(i-1)) +1) :(i*12)],  ncol= temp[2])
-      ggsave(paste("Combined_bar_plots",i,".png", sep = ""),val)
-      print(paste("Loop traversed", i))
+      val <-
+        grid.arrange(grobs = plotList[((12 * (i - 1)) + 1):(i * 12)],  ncol = temp[2])
+      ggsave(paste("Combined_bar_plots", i, ".png", sep = ""), val)
     }
     
-    if(RemainderPlotSheet > 0)
+    if (RemainderPlotSheet > 0)
     {
       temp <- n2mfrow(RemainderPlotSheet)
-      val <- grid.arrange(grobs = plotList[((FullPlotSheetNumber*12)+1):length(plotNumber)],  ncol= temp[2])
-      ggsave("Combined_bar_plots_last.png",val)
+      val <-
+        grid.arrange(grobs = plotList[((FullPlotSheetNumber * 12) + 1):plotNumber],  ncol = temp[2])
+      ggsave("Combined_bar_plots_last.png", val)
     }
     
   }
   else
   {
-   temp <- n2mfrow(length(plotList))
-   val <- grid.arrange(grobs = plotList,  ncol= temp[2])
-   ggsave("Combined_bar_plots.png",val)
+    temp <- n2mfrow(length(plotList))
+    val <- grid.arrange(grobs = plotList,  ncol = temp[2])
+    ggsave("Combined_bar_plots.png", val)
   }
- # grid.arrange(plotList, nrow = temp[1], ncol= temp[2])
-  # par(mfrow = c(temp[1], temp[2]))
-  # apply(plotList)
 }
