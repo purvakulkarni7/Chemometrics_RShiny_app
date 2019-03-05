@@ -1,6 +1,5 @@
 source("makeDir.R")
 library(ggplot2)
-library(gridExtra)
 library(RColorBrewer)
 library(stringr)
 library(tidyverse)
@@ -43,7 +42,7 @@ PerturbedFeatureBarPlots <- function()
       stringsAsFactors = FALSE
     )
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
-                                 1), ]
+                                 1),]
   
   patientFileName <- basename(patientFilePath)
   temp <- str_split(patientFileName, "[_,-]+")
@@ -77,7 +76,7 @@ PerturbedFeatureBarPlots <- function()
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
   
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
   
@@ -170,27 +169,29 @@ PerturbedFeatureBarPlots <- function()
       ) +
       theme(plot.title = element_text(size = 8, face = "bold")) +
       scale_fill_manual(values = pal, limits = names(pal)) +
-      # theme(
-      #   legend.position = "bottom",
-      #   legend.text = element_text(size = 7),
-      #   legend.title = element_text(size = 7, face = "bold")
-      # )
       theme(legend.position = "none")
+    
     
     plotList[[x]] = p
     
-    # plotFileName <- paste(featureID, patientID, ".png", sep = "_")
-    # ggsave(
-    #   plotFileName,
-    #   device = "png",
-    #   scale = 1,
-    #   dpi = 300,
-    #   width = 10,
-    #   height = 7,
-    #   path = outputPath
-    # )
+    p <- p + theme(
+      legend.position = "bottom",
+      legend.text = element_text(size = 7),
+      legend.title = element_blank()
+    )
+    
+    plotFileName <- paste(featureID, patientID, ".png", sep = "_")
+    ggsave(
+      plotFileName,
+      device = "png",
+      scale = 1,
+      dpi = 300,
+      width = 10,
+      height = 7,
+      path = outputPath
+    )
   }
-
+  
   # n <- length(plotList)
   # nCol <- floor(sqrt(n))
   #do.call("grid.arrange", c(plotList, ncol=nCol))
@@ -221,7 +222,7 @@ PerturbedFeatureBarPlots <- function()
   else
   {
     temp <- n2mfrow(length(plotList))
-    val <- grid.arrange(grobs = plotList,  ncol = temp[2])
+    val <- grid.arrange(grobs = plotList,  ncol = temp[2], legend)
     ggsave("Combined_bar_plots.png", val)
   }
 }
