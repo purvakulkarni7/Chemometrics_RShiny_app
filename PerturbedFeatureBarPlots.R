@@ -42,7 +42,7 @@ PerturbedFeatureBarPlots <- function()
       stringsAsFactors = FALSE
     )
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
-                                 1),]
+                                 1), ]
   
   patientFileName <- basename(patientFilePath)
   temp <- str_split(patientFileName, "[_,-]+")
@@ -76,7 +76,7 @@ PerturbedFeatureBarPlots <- function()
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
   
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
   
@@ -143,16 +143,9 @@ PerturbedFeatureBarPlots <- function()
       geom_bar(stat = "identity") + theme(
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(colour = "black")
+        panel.background = element_blank()
       ) +
       theme(axis.ticks.x = element_blank()) +
-      # scale_x_continuous(breaks = seq(1, nrow(data)),
-      #                    labels = c(rownames(df))) +
-      # theme(
-      #   axis.text.x = element_text(angle = 90, hjust = 1),
-      #   axis.text.x.bottom = element_text(vjust = 0.5)
-      # ) +
       theme(aspect.ratio = 0.5 / 1) +
       scale_y_continuous(expand = c(0, 0)) +
       ggtitle(
@@ -169,7 +162,9 @@ PerturbedFeatureBarPlots <- function()
       ) +
       theme(plot.title = element_text(size = 8, face = "bold")) +
       scale_fill_manual(values = pal, limits = names(pal)) +
-      theme(legend.position = "none")
+      theme(legend.position = "none") +
+      theme(axis.text = element_text(size = 6),
+            axis.title = element_text(size = 7, face = "bold"))
     
     
     plotList[[x]] = p
@@ -178,7 +173,12 @@ PerturbedFeatureBarPlots <- function()
       legend.position = "bottom",
       legend.text = element_text(size = 7),
       legend.title = element_blank()
-    )
+    ) +
+      theme(
+        axis.text.x = element_text(angle = 90, hjust = 1),
+        axis.text.x.bottom = element_text(vjust = 0.5)
+      ) +  scale_x_continuous(breaks = seq(1, nrow(data)),
+                              labels = c(rownames(df)))
     
     plotFileName <- paste(featureID, patientID, ".png", sep = "_")
     ggsave(
