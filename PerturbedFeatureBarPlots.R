@@ -42,13 +42,18 @@ PerturbedFeatureBarPlots <- function()
       stringsAsFactors = FALSE
     )
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
-                                 1), ]
+                                 1),]
   
   patientFileName <- basename(patientFilePath)
   temp <- str_split(patientFileName, "[_,-]+")
   patientID <-
     paste(temp[[1]][2], temp[[1]][3], temp[[1]][4], sep = "_")
   patientID <- paste(patientID, temp[[1]][5], sep = ".")
+  
+  if (temp[[1]][length(temp[[1]])] == "ESIpos.tsv")
+    mode = "ESIpos"
+  else if (temp[[1]][length(temp[[1]])] == "ESIneg.tsv")
+    mode = "ESIneg"
   
   y = 1
   
@@ -76,7 +81,7 @@ PerturbedFeatureBarPlots <- function()
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
   
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
   
@@ -119,7 +124,7 @@ PerturbedFeatureBarPlots <- function()
   rownames(data) = make.names(columnNames, unique = TRUE)
   colnames(data) = FeatureIdColumn$F
   
-  newDir = paste(patientID, "OutputBarPlots", sep = "_")
+  newDir = paste(patientID, "OutputPlots", mode, sep = "_")
   makeDir(newDir)
   outputPath = paste(".", "/", newDir, sep = "")
   
@@ -143,7 +148,8 @@ PerturbedFeatureBarPlots <- function()
       geom_bar(stat = "identity") + theme(
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.background = element_blank()
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")
       ) +
       theme(axis.ticks.x = element_blank()) +
       theme(aspect.ratio = 0.5 / 1) +
@@ -180,12 +186,13 @@ PerturbedFeatureBarPlots <- function()
       ) +  scale_x_continuous(breaks = seq(1, nrow(data)),
                               labels = c(rownames(df)))
     
-    plotFileName <- paste(featureID, patientID, ".png", sep = "_")
+    plotFileName <-
+      paste(featureID, patientID, mode, ".png", sep = "_")
     ggsave(
       plotFileName,
       device = "png",
       scale = 1,
-      dpi = 300,
+      dpi = 600,
       width = 10,
       height = 7,
       path = outputPath
@@ -207,7 +214,9 @@ PerturbedFeatureBarPlots <- function()
       temp <- n2mfrow(12)
       val <-
         grid.arrange(grobs = plotList[((12 * (i - 1)) + 1):(i * 12)],  ncol = temp[2])
-      ggsave(paste("Combined_bar_plots", i, ".png", sep = ""), val)
+      fileName <-
+        paste(patientID, mode, "CombinedPlots", i, sep = "_")
+      ggsave(paste(fileName, ".png", sep = ""), val)
     }
     
     if (RemainderPlotSheet > 0)
@@ -215,7 +224,8 @@ PerturbedFeatureBarPlots <- function()
       temp <- n2mfrow(RemainderPlotSheet)
       val <-
         grid.arrange(grobs = plotList[((FullPlotSheetNumber * 12) + 1):plotNumber],  ncol = temp[2])
-      ggsave("Combined_bar_plots_last.png", val)
+      ggsave(paste(patientID, mode, "CombinedPlots_last.png", sep = "_"),
+             val)
     }
     
   }
@@ -223,6 +233,6 @@ PerturbedFeatureBarPlots <- function()
   {
     temp <- n2mfrow(length(plotList))
     val <- grid.arrange(grobs = plotList,  ncol = temp[2], legend)
-    ggsave("Combined_bar_plots.png", val)
+    ggsave(paste(patientID, mode, "CombinedPlots.png", sep = "_"), val, dpi = 600)
   }
 }
