@@ -1,10 +1,14 @@
 source("makeDir.R")
-library(ggplot2)
-library(RColorBrewer)
-library(stringr)
-library(tidyverse)
-library(gridExtra)
-library(scales)
+source("check.packages.R")
+# require(ggplot2)
+# require(RColorBrewer)
+# require(stringr)
+# require(tidyverse)
+# require(gridExtra)
+# require(scales)
+
+packages<-c("ggplot2", "RColorBrewer", "stringr", "tidyverse", "gridExtra", "scales")
+check.packages(packages)
 
 PerturbedFeatureBarPlots <- function()
 {
@@ -25,28 +29,45 @@ PerturbedFeatureBarPlots <- function()
   print("Enter the different filter options below:")
   mp <-
     readline(prompt = "Filter based on metabolic panel (YES or NO) [Press ENTER to use default = YES]: ")
-  if(mp == "")
+  if (mp == "")
+  {
     mp <- "YES"
+    print(mp)
+  }
   
   mass_delta <-
     as.numeric(readline(prompt = "Enter value to filter mass (ppm) [Press ENTER to use default = 5]: "))
-  if(is.na(mass_delta))
+  if (is.na(mass_delta))
+  {
     mass_delta <- as.numeric(5)
+    print(mass_delta)
+  }
   
   RT_delta_min <-
     as.numeric(readline(prompt = "Enter minimum value to filter RT [press ENTER to use default = -1.0]: "))
-  if(is.na(RT_delta_min))
+  if (is.na(RT_delta_min))
+  {
     RT_delta_min <- as.numeric(-1)
+    print(RT_delta_min)
+  }
   
   RT_delta_max <-
     as.numeric(readline(prompt = "Enter maximum value to filter RT [press ENTER to use default = 10]: "))
-  if(is.na(RT_delta_max))
+  if (is.na(RT_delta_max))
+  {
     RT_delta_max <- as.numeric(10)
+    print(RT_delta_max)
+  }
   
   BFH_Pval <-
-    as.numeric(readline(prompt = "Enter value to filter Bonferroni Holm P values [press ENTER to use default = 0.05]: "))
-  if(is.na(BFH_Pval))
+    as.numeric(
+      readline(prompt = "Enter value to filter Bonferroni Holm P values [press ENTER to use default = 0.05]: ")
+    )
+  if (is.na(BFH_Pval))
+  {
     BFH_Pval <- as.numeric(0.05)
+    print(BFH_Pval)
+  }
   
   patientFile <-
     read.table(
@@ -169,7 +190,7 @@ PerturbedFeatureBarPlots <- function()
       ) +
       theme(axis.ticks.x = element_blank()) +
       theme(aspect.ratio = 0.5 / 1) +
-      scale_y_continuous(expand = c(0, 0), labels = comma) +
+      scale_y_continuous(expand = c(0, 0)) +
       ggtitle(
         paste(
           "Feature ID #",
@@ -182,11 +203,11 @@ PerturbedFeatureBarPlots <- function()
           "min"
         )
       ) +
-      theme(plot.title = element_text(size = 8, face = "bold")) +
+      theme(plot.title = element_text(size = 5, face = "bold")) +
       scale_fill_manual(values = pal, limits = names(pal)) +
       theme(legend.position = "none") +
-      theme(axis.text = element_text(size = 6),
-            axis.title = element_text(size = 7, face = "bold"))
+      theme(axis.text = element_text(size = 4),
+            axis.title = element_text(size = 5, face = "bold"))
     
     
     plotList[[x]] = p
@@ -200,7 +221,7 @@ PerturbedFeatureBarPlots <- function()
         axis.text.x = element_text(angle = 90, hjust = 1),
         axis.text.x.bottom = element_text(vjust = 0.5)
       ) +  scale_x_continuous(breaks = seq(1, nrow(data)),
-                              labels = c(rownames(df)))
+                              labels = c(rownames(df))) + theme(plot.title = element_text(size = 8, face = "bold"))
     
     plotFileName <-
       paste(featureID, patientID, mode, ".png", sep = "_")
@@ -232,7 +253,7 @@ PerturbedFeatureBarPlots <- function()
         grid.arrange(grobs = plotList[((12 * (i - 1)) + 1):(i * 12)],  ncol = temp[2])
       fileName <-
         paste(patientID, mode, "CombinedPlots", i, sep = "_")
-      ggsave(paste(fileName, ".png", sep = ""), val)
+      ggsave(paste(fileName, ".png", sep = ""), val, dpi = 600)
     }
     
     if (RemainderPlotSheet > 0)
@@ -241,7 +262,7 @@ PerturbedFeatureBarPlots <- function()
       val <-
         grid.arrange(grobs = plotList[((FullPlotSheetNumber * 12) + 1):plotNumber],  ncol = temp[2])
       ggsave(paste(patientID, mode, "CombinedPlots_last.png", sep = "_"),
-             val)
+             val, dpi = 600)
     }
     
   }
@@ -249,6 +270,8 @@ PerturbedFeatureBarPlots <- function()
   {
     temp <- n2mfrow(length(plotList))
     val <- grid.arrange(grobs = plotList,  ncol = temp[2], legend)
-    ggsave(paste(patientID, mode, "CombinedPlots.png", sep = "_"), val, dpi = 600)
+    ggsave(paste(patientID, mode, "CombinedPlots.png", sep = "_"),
+           val,
+           dpi = 600)
   }
 }
