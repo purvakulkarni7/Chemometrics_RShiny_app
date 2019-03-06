@@ -3,6 +3,8 @@ library(ggplot2)
 library(RColorBrewer)
 library(stringr)
 library(tidyverse)
+library(gridExtra)
+library(scales)
 
 PerturbedFeatureBarPlots <- function()
 {
@@ -22,15 +24,29 @@ PerturbedFeatureBarPlots <- function()
   # Feature filter options
   print("Enter the different filter options below:")
   mp <-
-    readline(prompt = "Filter based on metabolic panel (YES or NO): ")
+    readline(prompt = "Filter based on metabolic panel (YES or NO) [Press ENTER to use default = YES]: ")
+  if(mp == "")
+    mp <- "YES"
+  
   mass_delta <-
-    as.numeric(readline(prompt = "Enter value to filter mass (ppm): "))
+    as.numeric(readline(prompt = "Enter value to filter mass (ppm) [Press ENTER to use default = 5]: "))
+  if(is.na(mass_delta))
+    mass_delta <- as.numeric(5)
+  
   RT_delta_min <-
-    as.numeric(readline(prompt = "Enter minimum value to filter RT: "))
+    as.numeric(readline(prompt = "Enter minimum value to filter RT [press ENTER to use default = -1.0]: "))
+  if(is.na(RT_delta_min))
+    RT_delta_min <- as.numeric(-1)
+  
   RT_delta_max <-
-    as.numeric(readline(prompt = "Enter maximum value to filter RT: "))
+    as.numeric(readline(prompt = "Enter maximum value to filter RT [press ENTER to use default = 10]: "))
+  if(is.na(RT_delta_max))
+    RT_delta_max <- as.numeric(10)
+  
   BFH_Pval <-
-    as.numeric(readline(prompt = "Enter value to filter Bonferroni Holm P values: "))
+    as.numeric(readline(prompt = "Enter value to filter Bonferroni Holm P values [press ENTER to use default = 0.05]: "))
+  if(is.na(BFH_Pval))
+    BFH_Pval <- as.numeric(0.05)
   
   patientFile <-
     read.table(
@@ -153,7 +169,7 @@ PerturbedFeatureBarPlots <- function()
       ) +
       theme(axis.ticks.x = element_blank()) +
       theme(aspect.ratio = 0.5 / 1) +
-      scale_y_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0), labels = comma) +
       ggtitle(
         paste(
           "Feature ID #",
