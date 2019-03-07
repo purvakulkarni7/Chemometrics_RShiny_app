@@ -6,7 +6,3 @@ check.packages <- function(pkg){
     install.packages(new.pkg, dependencies = TRUE)
   sapply(pkg, require, character.only = TRUE)
 }
-
-# Usage example
-packages<-c("ggplot2", "afex", "ez", "Hmisc", "pander", "plyr")
-check.packages(packages)

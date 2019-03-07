@@ -114,6 +114,8 @@ PerturbedFeatureBarPlots <- function()
   # Remove duplicates in the perturbed feature ID list
   perturbedFeatureID <- unique(perturbedFeatureID)
   
+  print(paste(length(perturbedFeatureID), "statistically significant features found based on filtering."))
+  
   data_table_t <- as.data.frame(t(data_table))
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
@@ -186,7 +188,8 @@ PerturbedFeatureBarPlots <- function()
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
-        axis.line = element_line(colour = "black")
+        axis.line = element_line(colour = "#707070", size = 0.25),
+        axis.ticks = element_line(colour = "#707070", size = 0.25)
       ) +
       theme(axis.ticks.x = element_blank()) +
       theme(aspect.ratio = 0.5 / 1) +
@@ -221,7 +224,10 @@ PerturbedFeatureBarPlots <- function()
         axis.text.x = element_text(angle = 90, hjust = 1),
         axis.text.x.bottom = element_text(vjust = 0.5)
       ) +  scale_x_continuous(breaks = seq(1, nrow(data)),
-                              labels = c(rownames(df))) + theme(plot.title = element_text(size = 8, face = "bold"))
+                              labels = c(rownames(df))) + theme(plot.title = element_text(size = 8, face = "bold"))  +
+      scale_y_continuous(expand = c(0, 0), labels = comma) +
+      theme(axis.text = element_text(size = 6),
+            axis.title = element_text(size = 7, face = "bold"))
     
     plotFileName <-
       paste(featureID, patientID, mode, ".png", sep = "_")
@@ -236,9 +242,6 @@ PerturbedFeatureBarPlots <- function()
     )
   }
   
-  # n <- length(plotList)
-  # nCol <- floor(sqrt(n))
-  #do.call("grid.arrange", c(plotList, ncol=nCol))
   if (length(plotList) > 12)
   {
     plotNumber <- length(plotList)
