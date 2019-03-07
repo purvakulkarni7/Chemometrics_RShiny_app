@@ -1,22 +1,23 @@
 source("makeDir.R")
 source("check.packages.R")
-# require(ggplot2)
-# require(RColorBrewer)
-# require(stringr)
-# require(tidyverse)
-# require(gridExtra)
-# require(scales)
 
-packages<-c("ggplot2", "RColorBrewer", "stringr", "tidyverse", "gridExtra", "scales")
+packages <-
+  c("ggplot2",
+    "RColorBrewer",
+    "stringr",
+    "tidyverse",
+    "gridExtra",
+    "scales")
+
 check.packages(packages)
 
 PerturbedFeatureBarPlots <- function()
 {
-  # Enter the file path (for example: Sample_data/190125_Patient_plasma_BB18-01585_2019-02-05_ESIpos.tsv)
+  # Enter the file path (for example: Sample_data\190125_Patient_plasma_BB18-01585_2019-02-05_ESIpos.tsv)
   patientFilePath <-
     readline(prompt = "Enter interested patient file path: ")
   
-  # Enter the file path (for example: Sample_data/190125_ControlsvsPatients_2019-02-05_ESIpos.tsv)
+  # Enter the file path (for example: Sample_data\190125_ControlsvsPatients_2019-02-05_ESIpos.tsv)
   CoVsPaFilePath <-
     readline(prompt = "Enter control vs Patient file path: ")
   data_table <-
@@ -26,13 +27,13 @@ PerturbedFeatureBarPlots <- function()
                fill = TRUE)
   
   # Feature filter options
-  print("Enter the different filter options below:")
+  cat("Enter the different filter options below:")
   mp <-
     readline(prompt = "Filter based on metabolic panel (YES or NO) [Press ENTER to use default = YES]: ")
   if (mp == "")
   {
     mp <- "YES"
-    print(mp)
+    cat(mp)
   }
   
   mass_delta <-
@@ -40,7 +41,7 @@ PerturbedFeatureBarPlots <- function()
   if (is.na(mass_delta))
   {
     mass_delta <- as.numeric(5)
-    print(mass_delta)
+    cat(mass_delta)
   }
   
   RT_delta_min <-
@@ -48,7 +49,7 @@ PerturbedFeatureBarPlots <- function()
   if (is.na(RT_delta_min))
   {
     RT_delta_min <- as.numeric(-1)
-    print(RT_delta_min)
+    cat(RT_delta_min)
   }
   
   RT_delta_max <-
@@ -56,7 +57,7 @@ PerturbedFeatureBarPlots <- function()
   if (is.na(RT_delta_max))
   {
     RT_delta_max <- as.numeric(10)
-    print(RT_delta_max)
+    cat(RT_delta_max)
   }
   
   BFH_Pval <-
@@ -66,7 +67,7 @@ PerturbedFeatureBarPlots <- function()
   if (is.na(BFH_Pval))
   {
     BFH_Pval <- as.numeric(0.05)
-    print(BFH_Pval)
+    cat(paste(BFH_Pval,"\n"))
   }
   
   patientFile <-
@@ -79,7 +80,7 @@ PerturbedFeatureBarPlots <- function()
       stringsAsFactors = FALSE
     )
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
-                                 1),]
+                                 1), ]
   
   patientFileName <- basename(patientFilePath)
   temp <- str_split(patientFileName, "[_,-]+")
@@ -114,13 +115,18 @@ PerturbedFeatureBarPlots <- function()
   # Remove duplicates in the perturbed feature ID list
   perturbedFeatureID <- unique(perturbedFeatureID)
   
-  print(paste(length(perturbedFeatureID), "statistically significant features found based on filtering."))
+  cat(
+    paste(
+      length(perturbedFeatureID),
+      "statistically significant features found based on filtering. Now printing bar plots..."
+    )
+  )
   
   data_table_t <- as.data.frame(t(data_table))
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
   
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
   
@@ -206,66 +212,85 @@ PerturbedFeatureBarPlots <- function()
           "min"
         )
       ) +
-      theme(plot.title = element_text(size = 5, face = "bold")) +
+      theme(plot.title = element_text(size = 4, face = "bold")) +
       scale_fill_manual(values = pal, limits = names(pal)) +
       theme(legend.position = "none") +
       theme(axis.text = element_text(size = 4),
-            axis.title = element_text(size = 5, face = "bold"))
+            axis.title = element_text(size = 4, face = "bold"))
     
     
     plotList[[x]] = p
     
-    p <- p + theme(
-      legend.position = "bottom",
-      legend.text = element_text(size = 7),
-      legend.title = element_blank()
-    ) +
-      theme(
-        axis.text.x = element_text(angle = 90, hjust = 1),
-        axis.text.x.bottom = element_text(vjust = 0.5)
-      ) +  scale_x_continuous(breaks = seq(1, nrow(data)),
-                              labels = c(rownames(df))) + theme(plot.title = element_text(size = 8, face = "bold"))  +
-      scale_y_continuous(expand = c(0, 0), labels = comma) +
-      theme(axis.text = element_text(size = 6),
-            axis.title = element_text(size = 7, face = "bold"))
+    suppressMessages(
+      p <- p + theme(
+        legend.position = "bottom",
+        legend.text = element_text(size = 7),
+        legend.title = element_blank()
+      ) +
+        theme(
+          axis.text.x = element_text(angle = 90, hjust = 1),
+          axis.text.x.bottom = element_text(vjust = 0.5)
+        ) +  scale_x_continuous(
+          breaks = seq(1, nrow(data)),
+          labels = c(rownames(df))
+        ) + theme(plot.title = element_text(size = 8, face = "bold"))  +
+        scale_y_continuous(expand = c(0, 0), labels = comma) +
+        theme(
+          axis.text = element_text(size = 6),
+          axis.title = element_text(size = 7, face = "bold")
+        )
+    )
     
     plotFileName <-
       paste(featureID, patientID, mode, ".png", sep = "_")
-    ggsave(
-      plotFileName,
-      device = "png",
-      scale = 1,
-      dpi = 600,
-      width = 10,
-      height = 7,
-      path = outputPath
+    suppressMessages(
+      ggsave(
+        plotFileName,
+        device = "png",
+        scale = 1,
+        dpi = 600,
+        width = 10,
+        height = 7,
+        path = outputPath
+      )
     )
   }
   
-  if (length(plotList) > 12)
+  if (length(plotList) > 16)
   {
     plotNumber <- length(plotList)
-    FullPlotSheetNumber = plotNumber %/% 12
+    FullPlotSheetNumber = plotNumber %/% 16
     
-    RemainderPlotSheet = plotNumber %% 12
+    RemainderPlotSheet = plotNumber %% 16
     
     for (i in 1:FullPlotSheetNumber)
     {
-      temp <- n2mfrow(12)
+      temp <- n2mfrow(16)
       val <-
-        grid.arrange(grobs = plotList[((12 * (i - 1)) + 1):(i * 12)],  ncol = temp[2])
+        grid.arrange(grobs = plotList[((16 * (i - 1)) + 1):(i * 16)],  ncol = temp[2])
       fileName <-
         paste(patientID, mode, "CombinedPlots", i, sep = "_")
-      ggsave(paste(fileName, ".png", sep = ""), val, dpi = 600)
+      ggsave(
+        paste(fileName, ".png", sep = ""),
+        val,
+        dpi = 600,
+        width = 9.43,
+        height = 4.8
+      )
     }
     
     if (RemainderPlotSheet > 0)
     {
       temp <- n2mfrow(RemainderPlotSheet)
       val <-
-        grid.arrange(grobs = plotList[((FullPlotSheetNumber * 12) + 1):plotNumber],  ncol = temp[2])
-      ggsave(paste(patientID, mode, "CombinedPlots_last.png", sep = "_"),
-             val, dpi = 600)
+        grid.arrange(grobs = plotList[((FullPlotSheetNumber * 16) + 1):plotNumber],  ncol = temp[2])
+      ggsave(
+        paste(patientID, mode, "CombinedPlots_last.png", sep = "_"),
+        val,
+        dpi = 600,
+        width = 9.43,
+        height = 4.8
+      )
     }
     
   }
@@ -273,8 +298,15 @@ PerturbedFeatureBarPlots <- function()
   {
     temp <- n2mfrow(length(plotList))
     val <- grid.arrange(grobs = plotList,  ncol = temp[2], legend)
-    ggsave(paste(patientID, mode, "CombinedPlots.png", sep = "_"),
-           val,
-           dpi = 600)
+    ggsave(
+      paste(patientID, mode, "CombinedPlots.png", sep = "_"),
+      val,
+      dpi = 600,
+      width = 9.43,
+      height = 4.8
+    )
   }
+  
+  cat("\nAll successfully barplots generated!\n")
+  cat("==================================================\n")
 }
