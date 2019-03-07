@@ -1,6 +1,23 @@
+##################################################
+## Title: PerturbedFeatureBarPlots.R
+## Description: This function generates patient vs control bar plots where a selected patient of interest is highlighted in red and the other patients in grey. 
+## Input: 
+## The function asks for the following user input
+## 1. File path to interested patient data (exported by the UDA pipeline)
+## 2. File path to to Control vs Patient data (exported by the UDA pipeline)
+## 3. Filtering parameters (if the user wants to use default parameters , press ENTER key on every parameter prompt)
+## Output:
+## The function prints multiple individual bar plots equivalent to the number of significant features found based on the filtering parameters provided. The function also exports all bar plots placed together in a grid manner.
+## Date: Thu Feb 25 10:06:37 2019
+## Author: Purva Kulkarni
+## Email: purva.kulkarni@radboudumc.nl
+##################################################
+
+# Call the required functions
 source("makeDir.R")
 source("check.packages.R")
 
+# List of required packages and load them
 packages <-
   c("ggplot2",
     "RColorBrewer",
@@ -8,9 +25,9 @@ packages <-
     "tidyverse",
     "gridExtra",
     "scales")
-
 check.packages(packages)
 
+# Start of function
 PerturbedFeatureBarPlots <- function()
 {
   # Enter the file path (for example: Sample_data\190125_Patient_plasma_BB18-01585_2019-02-05_ESIpos.tsv)
@@ -67,9 +84,10 @@ PerturbedFeatureBarPlots <- function()
   if (is.na(BFH_Pval))
   {
     BFH_Pval <- as.numeric(0.05)
-    cat(paste(BFH_Pval,"\n"))
+    cat(paste(BFH_Pval,"\n\n"))
   }
   
+  # Read patient data file
   patientFile <-
     read.table(
       patientFilePath,
@@ -82,12 +100,14 @@ PerturbedFeatureBarPlots <- function()
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
                                  1), ]
   
+  # Generate patientID using patient file name 
   patientFileName <- basename(patientFilePath)
   temp <- str_split(patientFileName, "[_,-]+")
   patientID <-
     paste(temp[[1]][2], temp[[1]][3], temp[[1]][4], sep = "_")
   patientID <- paste(patientID, temp[[1]][5], sep = ".")
   
+  # Extract acquisition mode information
   if (temp[[1]][length(temp[[1]])] == "ESIpos.tsv")
     mode = "ESIpos"
   else if (temp[[1]][length(temp[[1]])] == "ESIneg.tsv")
@@ -95,8 +115,10 @@ PerturbedFeatureBarPlots <- function()
   
   y = 1
   
+  # Define a empty list of perturbed feature IDs
   perturbedFeatureID = list()
   
+  # Perform filtering in the patient data based on specified filtering parameters
   for (i in 1:nrow(patientFile))
   {
     if ((patientFile$MP[i] == mp) &&
@@ -115,6 +137,7 @@ PerturbedFeatureBarPlots <- function()
   # Remove duplicates in the perturbed feature ID list
   perturbedFeatureID <- unique(perturbedFeatureID)
   
+  # Print the number of perturbed features found after filtering
   cat(
     paste(
       length(perturbedFeatureID),
@@ -122,16 +145,16 @@ PerturbedFeatureBarPlots <- function()
     )
   )
   
+  # Extract requires column information from the patient vs coltrol data
   data_table_t <- as.data.frame(t(data_table))
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
   data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
-  
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
-  
   SampleType <- row.names(data_table_t_sub)
   
+  # Find the Sample type based on column names in patient vs coltrol data
   for (i in 1:length(SampleType))
   {
     if (i == patientIDColumnNumber)
@@ -160,34 +183,39 @@ PerturbedFeatureBarPlots <- function()
   #   "Validation" = "#008700"
   # )
   
+  # Generate a color pallete to color fill bars from different sample type
   pal <-
     setNames(c("#000000", "#9e9e9e", "#FF0000", "#0000ff", "#008700"),
              levels(SampleType))
   
+  # set row and column names for the transposed data frame
   columnNames <- colnames(data_table)
   columnNames <- columnNames[4:length(columnNames)]
   rownames(data) = make.names(columnNames, unique = TRUE)
   colnames(data) = FeatureIdColumn$F
   
+  # Generate a new directory to export the bar plots
   newDir = paste(patientID, "OutputPlots", mode, sep = "_")
   makeDir(newDir)
   outputPath = paste(".", "/", newDir, sep = "")
   
+  # Create an empty plotlist to save ggplot objects
   plotList = list()
   
+  # For loop to generate a barplot for each pertubed feature
   for (x in 1:length(perturbedFeatureID))
   {
+    # Extract single feature ID and related information
     featureID <- as.numeric(perturbedFeatureID[[x]])
-    
-    # http://www.sthda.com/english/wiki/ggplot2-barplots-quick-start-guide-r-software-and-data-visualization
-    
     temp = data[as.character(featureID)]
-    
-    df <-
+     df <-
       data.frame(Sample = c(1:nrow(data)), Intensity = c(temp[, 1]))
     rownames(df) <- rownames(data)
+    
+    # Generate plot name 
     plotName <- paste("Plot", featureID, sep = "_")
     
+    # Create the ggplot (themes used here are compatible with combined bar plots displayed in a grid)
     p <-
       ggplot(data = df, aes(x = Sample, y = Intensity, fill = SampleType)) +
       geom_bar(stat = "identity") + theme(
@@ -218,9 +246,10 @@ PerturbedFeatureBarPlots <- function()
       theme(axis.text = element_text(size = 4),
             axis.title = element_text(size = 4, face = "bold"))
     
-    
+    # Save the ggPlot object in the plotList 
     plotList[[x]] = p
     
+    # Add additional themes for exporting individual bar plots
     suppressMessages(
       p <- p + theme(
         legend.position = "bottom",
@@ -241,8 +270,11 @@ PerturbedFeatureBarPlots <- function()
         )
     )
     
+    # Generate name for bar plot image file
     plotFileName <-
       paste(featureID, patientID, mode, ".png", sep = "_")
+    
+    # Save the bar plot 
     suppressMessages(
       ggsave(
         plotFileName,
@@ -256,6 +288,7 @@ PerturbedFeatureBarPlots <- function()
     )
   }
   
+  # Generate combined bar plot and save in a grid manner (16 plots per sheet)
   if (length(plotList) > 16)
   {
     plotNumber <- length(plotList)
@@ -309,4 +342,5 @@ PerturbedFeatureBarPlots <- function()
   
   cat("\nAll successfully barplots generated!\n")
   cat("==================================================\n")
+  # End of function
 }
