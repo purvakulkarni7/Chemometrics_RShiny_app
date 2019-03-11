@@ -340,7 +340,7 @@ PerturbedFeatureBarPlots <- function()
     )
   }
   
-  cat("\nAll successfully barplots generated!\n")
+  cat("\nAll barplots successfully generated!\n")
   cat("==================================================\n")
   # End of function
 }
