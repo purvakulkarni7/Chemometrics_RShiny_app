@@ -37,11 +37,6 @@ PerturbedFeatureBarPlots <- function()
   # Enter the file path (for example: Sample_data\190125_ControlsvsPatients_2019-02-05_ESIpos.tsv)
   CoVsPaFilePath <-
     readline(prompt = "Enter control vs Patient file path: ")
-  data_table <-
-    read.table(CoVsPaFilePath,
-               header = TRUE,
-               skip = 2,
-               fill = TRUE)
   
   # Feature filter options
   cat("Enter the different filter options below:")
@@ -97,17 +92,30 @@ PerturbedFeatureBarPlots <- function()
       quote = "",
       stringsAsFactors = FALSE
     )
+  
+  rawDataIdentifier = patientFile[which(patientFile$Feature_ID == "Raw Data Identifiers"),2]
+  tempString = str_split(rawDataIdentifier, ";")
+  rawDataIdentifier = tempString[[1]][1]
+  
+  data_table <- read.table(CoVsPaFilePath, fill = TRUE)
+  patientID <- as.character(data_table[2,((which(data_table[1,1:ncol(data_table)] == rawDataIdentifier)) + 3)])
+  data_table <- data_table[(2:nrow(data_table)),]
+  colnames(data_table) <- as.character(unlist(data_table[1,]))
+  data_table <- data_table[(2:nrow(data_table)),]
+  
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
                                  1), ]
   
-  # Generate patientID using patient file name 
-  patientFileName <- basename(patientFilePath)
-  temp <- str_split(patientFileName, "[_,-]+")
-  patientID <-
-    paste(temp[[1]][2], temp[[1]][3], temp[[1]][4], sep = "_")
-  patientID <- paste(patientID, temp[[1]][5], sep = ".")
+  # # Generate patientID using patient file name 
+  # patientFileName <- basename(patientFilePath)
+  # temp <- str_split(patientFileName, "[_,-]+")
+  # patientID <-
+  #   paste(temp[[1]][2], temp[[1]][3], temp[[1]][4], sep = "_")
+  # patientID <- paste(patientID, temp[[1]][5], sep = ".")
   
   # Extract acquisition mode information
+  patientFileName <- basename(patientFilePath)
+  temp <- str_split(patientFileName, "[_,-]+")
   if (temp[[1]][length(temp[[1]])] == "ESIpos.tsv")
     mode = "ESIpos"
   else if (temp[[1]][length(temp[[1]])] == "ESIneg.tsv")
