@@ -93,7 +93,7 @@ PerturbedFeatureBarPlots <- function()
       stringsAsFactors = FALSE
     )
   
-  # Extract the patient identifier from the patient file 
+  # Extract the patient identifier from the patient file
   rawDataIdentifier = patientFile[which(patientFile$Feature_ID == "Raw Data Identifiers"), 2]
   tempString = str_split(rawDataIdentifier, ";")
   rawDataIdentifier = tempString[[1]][1]
@@ -102,12 +102,12 @@ PerturbedFeatureBarPlots <- function()
   patientID <-
     as.character(data_table[2, ((which(data_table[1, 1:ncol(data_table)] == rawDataIdentifier)) + 3)])
   
-  data_table <- data_table[(2:nrow(data_table)), ]
-  colnames(data_table) <- as.character(unlist(data_table[1, ]))
-  data_table <- data_table[(2:nrow(data_table)), ]
+  data_table <- data_table[(2:nrow(data_table)),]
+  colnames(data_table) <- as.character(unlist(data_table[1,]))
+  data_table <- data_table[(2:nrow(data_table)),]
   
   patientFile = patientFile[1:(which(patientFile$Feature_ID == "Worklist") -
-                                 1),]
+                                 1), ]
   
   # Extract acquisition mode information
   patientFileName <- basename(patientFilePath)
@@ -149,7 +149,7 @@ PerturbedFeatureBarPlots <- function()
     )
   )
   
-  # Handle duplicate rownames 
+  # Handle duplicate rownames
   tempList <- colnames(data_table)
   
   j = 1
@@ -179,7 +179,7 @@ PerturbedFeatureBarPlots <- function()
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
   row.names(data_table_t_sub) <- tempList[4:length(tempList)]
   
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
@@ -241,7 +241,8 @@ PerturbedFeatureBarPlots <- function()
     temp = data[as.character(featureID)]
     
     df <-
-      data.frame(Sample = c(1:nrow(data)), Intensity = c(as.numeric(as.character(temp[,1]))))
+      data.frame(Sample = c(1:nrow(data)),
+                 Intensity = c(as.numeric(as.character(temp[, 1]))))
     
     rownames(df) <- rownames(data)
     
