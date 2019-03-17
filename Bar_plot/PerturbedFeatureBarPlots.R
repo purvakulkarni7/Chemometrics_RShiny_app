@@ -153,12 +153,42 @@ PerturbedFeatureBarPlots <- function()
     )
   )
   
+  
+  temp <- colnames(data_table)
+  
+  j = 1
+  k = 1
+  
+  for(i in 5:length(temp))
+  {
+    
+    if(startsWith(temp[i], "C") || startsWith(temp[i], "P"))
+    {
+      if((i %% 2) != 0)
+        temp[i] = paste(temp[i],".1", sep = "")
+    }
+    else if(startsWith(temp[i], "Q"))
+    {
+      
+      temp[i] = paste(temp[i],".", j, sep = "")
+      j = j +1
+    }
+    else if(startsWith(temp[i], "V"))
+    {
+      
+      temp[i] = paste(temp[i],".", k, sep = "")
+      k = k +1
+    }
+  }
+  
   # Extract requires column information from the patient vs coltrol data
   data_table_t <- as.data.frame(t(data_table))
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
   data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
+  row.names(data_table_t_sub) <- temp[4:length(temp)]
+  
   patientIDColumnNumber = which(rownames(data_table_t_sub) == patientID)
   SampleType <- row.names(data_table_t_sub)
   
