@@ -14,8 +14,8 @@
 ##################################################
 
 # Call the required functions
-source("makeDir.R")
-source("check.packages.R")
+source("Support_scripts/makeDir.R")
+source("Support_scripts/check.packages.R")
 
 # List of required packages and load them
 packages <-
