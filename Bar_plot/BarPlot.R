@@ -28,12 +28,14 @@ BarPlot <- function()
                skip = 2,
                fill = TRUE)
   
+  
+  
   #Transpose
   data_table_t <- as.data.frame(t(data_table))
   FeatureIdColumn <- data_table[1]
   MassColumn <- data_table[2]
   RTColumn <- data_table[3]
-  data_table_t_sub <- data_table_t[4:nrow(data_table_t),]
+  data_table_t_sub <- data_table_t[4:nrow(data_table_t), ]
   SampleType <- row.names(data_table_t_sub)
   SampleType <- word(SampleType, sep = "_")
   data_table_t_sub <- cbind(data_table_t_sub, SampleType)
@@ -61,7 +63,16 @@ BarPlot <- function()
   
   repeat {
     featureID <- readline(prompt = "Enter feature ID: ")
+    
     featureID <- as.numeric(featureID)
+    
+    options( warn = -1 )
+    
+    if (is.na(featureID))
+    {
+      print("Non-numeric feature ID entered. The script will exit now.")
+      break
+    }
     
     # http://www.sthda.com/english/wiki/ggplot2-barplots-quick-start-guide-r-software-and-data-visualization
     
@@ -89,6 +100,7 @@ BarPlot <- function()
       scale_y_continuous(expand = c(0, 0)) +
       ggtitle(
         paste(
+          basename(filePath),
           "Feature ID #",
           featureID,
           ", m/z = ",
@@ -102,13 +114,13 @@ BarPlot <- function()
       scale_fill_manual(values = pal, limits = names(pal))
     
     print(p)
-    
-    if (Continue <-
-        readline(prompt = "Do you want to continue, type y or n: ") == "n")
-    {
-      print("The script will exit now.")
-      break
-    }
+    #
+    # if (Continue <-
+    #     readline(prompt = "Do you want to continue, type y or n: ") == "n")
+    # {
+    #   print("The script will exit now.")
+    #   break
+    # }
   }
 }
 
