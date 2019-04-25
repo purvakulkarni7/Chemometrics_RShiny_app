@@ -29,6 +29,9 @@ BarPlot <- function()
                fill = TRUE)
   
   
+  #Data and acquisition mode information
+  fileName <- strsplit(basename(filePath), split = "_")
+  fileName <- paste(fileName[[1]][1], strsplit(fileName[[1]][length(fileName[[1]])], split = "[.]")[[1]][1], sep = "_")
   
   #Transpose
   data_table_t <- as.data.frame(t(data_table))
@@ -100,7 +103,7 @@ BarPlot <- function()
       scale_y_continuous(expand = c(0, 0)) +
       ggtitle(
         paste(
-          basename(filePath),
+          fileName,
           "Feature ID #",
           featureID,
           ", m/z = ",
